@@ -1,7 +1,6 @@
 open Ast
 open Ds
 
-
 let rec eval_expr : expr -> exp_val ea_result = fun e ->
   match e with
   | Int(n) -> return @@ NumVal n
@@ -47,7 +46,8 @@ let rec eval_expr : expr -> exp_val ea_result = fun e ->
     int_of_numVal >>= fun n ->
     return @@ BoolVal (n = 0)
   | Tuple(es) ->
-    error "implement"
+    sequence (List.map eval_expr es) >>= fun vs ->
+    return @@ TupleVal vs
   | Untuple(ids,e1,e2) ->
     error "implement"
   | Debug(_e) ->
@@ -55,6 +55,7 @@ let rec eval_expr : expr -> exp_val ea_result = fun e ->
     print_endline str; 
     return @@ UnitVal
   | _ -> error "Not implemented yet!"
+
 
 
 let eval_prog (AProg e) = eval_expr e 
