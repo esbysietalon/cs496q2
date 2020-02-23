@@ -81,23 +81,15 @@ let bool_of_boolVal : exp_val -> bool ea_result =  function
   |  BoolVal b -> return b
   | _ -> error "Expected a boolean!"
 
-let rec sequence: (exp_val ea_result) list -> (exp_val list) ea_result = fun rs ->
+let rec sequence_helper: (exp_val ea_result) list -> env -> (exp_val list) = fun rs env ->
   match rs with
-  | [] -> return []
-  | h::t -> failwith"implement"
-(*
-let rec list_of_expVal_helper : exp_val list -> 'a list -> 'a list = fun l acc ->
-  match l with
-  | h::t -> (match h with
-            | NumVal n -> list_of_expVal_helper t [n]@acc
-            | BoolVal b -> list_of_expVal_helper t [b]@acc
-            | UnitVal -> list_of_expVal_helper t )
-  | [] -> acc
-
-let list_of_expVal : exp_val -> 'a list ea_result = function 
-  | TupleVal(h::t) -> return @@ list_of_expVal_helper h::t []
-  | _ -> error "Expected non-empty list!"
-*)
+  | [] -> []
+  | h::t -> (match (h env) with 
+            | Ok(v) -> (sequence_helper t env)@[v]
+            | _ -> failwith"need to propagate errors")
+let sequence: (exp_val ea_result) list -> (exp_val list) ea_result = fun rs ->
+  fun env -> 
+    Ok(sequence_helper rs env)
 
 let rec string_of_list_of_strings = function
   | [] -> ""
