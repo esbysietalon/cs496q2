@@ -81,15 +81,17 @@ let bool_of_boolVal : exp_val -> bool ea_result =  function
   |  BoolVal b -> return b
   | _ -> error "Expected a boolean!"
 
-let rec sequence_helper: (exp_val ea_result) list -> env -> (exp_val list) = fun rs env ->
+let rec sequence_helper: (exp_val ea_result) list -> env -> (exp_val list) -> (exp_val list)*string = fun rs env acc ->
   match rs with
-  | [] -> []
+  | [] -> (acc, "")
   | h::t -> (match (h env) with 
-            | Ok(v) -> (sequence_helper t env)@[v]
-            | _ -> failwith"need to propagate errors")
+            | Ok(v) -> (sequence_helper t env (acc@[v]) )
+            | Error(x) -> ([], x))
 let sequence: (exp_val ea_result) list -> (exp_val list) ea_result = fun rs ->
   fun env -> 
-    Ok(sequence_helper rs env)
+    match (sequence_helper rs env []) with 
+    | l, "" -> Ok(l)
+    | _, x -> Error(x)
 
 let rec string_of_list_of_strings = function
   | [] -> ""
