@@ -49,7 +49,10 @@ let rec eval_expr : expr -> exp_val ea_result = fun e ->
     sequence (List.map eval_expr es) >>= fun vs ->
     return @@ TupleVal vs
   | Untuple(ids,e1,e2) ->
-    error "implement"
+    eval_expr e1 >>=
+    list_of_tupleVal >>= fun l ->
+    extend_env_list ids l >>+
+    eval_expr e2
   | Debug(_e) ->
     string_of_env >>= fun str ->
     print_endline str; 

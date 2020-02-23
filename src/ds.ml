@@ -81,6 +81,10 @@ let bool_of_boolVal : exp_val -> bool ea_result =  function
   |  BoolVal b -> return b
   | _ -> error "Expected a boolean!"
 
+let list_of_tupleVal : exp_val -> exp_val list ea_result = function
+  | TupleVal vs -> return vs
+  | _ -> error "Expected a tuple!"
+
 let rec sequence_helper: (exp_val ea_result) list -> env -> (exp_val list) -> (exp_val list)*string = fun rs env acc ->
   match rs with
   | [] -> (acc, "")
